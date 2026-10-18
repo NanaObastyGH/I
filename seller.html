@@ -1,0 +1,170 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seller Login | NanaObasty Buy&Sell GH</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 25px;
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+    }
+    .container {
+      max-width: 420px;
+      margin: 35px auto;
+      padding: 25px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px #ddd;
+    }
+    h1 { color: #f68b1e; text-align: center; }
+    h2 { text-align: center; }
+    input, button {
+      box-sizing: border-box;
+      width: 100%;
+      padding: 13px;
+      margin: 8px 0;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+    input { border: 1px solid #ccc; }
+    button {
+      border: none;
+      background: #f68b1e;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .switch {
+      background: #333;
+      margin-top: 5px;
+    }
+    #message { overflow-wrap: anywhere; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>NanaObasty</h1>
+    <p style="text-align:center">Buy & Sell GH — Seller Centre</p>
+
+    <h2 id="formTitle">Create Seller Account</h2>
+
+    <form id="sellerForm">
+      <div id="registerFields">
+        <input id="fullName" placeholder="Your full name" required>
+        <input id="shopName" placeholder="Shop name" required>
+        <input id="phone" type="tel" placeholder="Phone number">
+      </div>
+
+      <input id="email" type="email" placeholder="Email address" required>
+      <input id="password" type="password"
+             placeholder="Password (at least 8 characters)"
+             minlength="8" required>
+
+      <button id="submitButton" type="submit">Create Account</button>
+    </form>
+
+    <button class="switch" id="switchButton" type="button">
+      Already have an account? Log in
+    </button>
+
+    <p id="message" role="status"></p>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const SUPABASE_URL =
+      "https://bdxhqsdqnqqevvlmpfah.supabase.co";
+    const SUPABASE_KEY =
+      "sb_publishable_RcrFMMSjl4L5D9-fpU0DUQ_H3rf36Ur";
+
+    const db = window.supabase.createClient(
+      SUPABASE_URL, SUPABASE_KEY
+    );
+
+    let isLogin = false;
+
+    const form = document.getElementById("sellerForm");
+    const message = document.getElementById("message");
+    const registerFields = document.getElementById("registerFields");
+    const submitButton = document.getElementById("submitButton");
+    const switchButton = document.getElementById("switchButton");
+
+    switchButton.addEventListener("click", () => {
+      isLogin = !isLogin;
+      registerFields.hidden = isLogin;
+      document.getElementById("fullName").required = !isLogin;
+      document.getElementById("shopName").required = !isLogin;
+      document.getElementById("formTitle").textContent =
+        isLogin ? "Seller Login" : "Create Seller Account";
+      submitButton.textContent =
+        isLogin ? "Log In" : "Create Account";
+      switchButton.textContent =
+        isLogin ? "New seller? Create an account" :
+        "Already have an account? Log in";
+      message.textContent = "";
+    });
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      submitButton.disabled = true;
+      message.textContent = "Please wait...";
+
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+
+      try {
+        if (isLogin) {
+          const { error } = await db.auth.signInWithPassword({
+            email, password
+          });
+          if (error) throw error;
+          message.textContent =
+            "Login successful! Seller account connected.";
+        } else {
+          const fullName =
+            document.getElementById("fullName").value.trim();
+          const shopName =
+            document.getElementById("shopName").value.trim();
+          const phone =
+            document.getElementById("phone").value.trim();
+
+          const { data, error } = await db.auth.signUp({
+            email,
+            password,
+            options: {
+              emailRedirectTo: window.location.origin +
+                window.location.pathname,
+              data: { full_name: fullName, shop_name: shopName, phone }
+            }
+          });
+          if (error) throw error;
+
+          if (data.session && data.user) {
+            const { error: profileError } = await db
+              .from("sellers")
+              .upsert({
+                id: data.user.id,
+                full_name: fullName,
+                shop_name: shopName,
+                phone
+              });
+            if (profileError) throw profileError;
+          }
+
+          message.textContent = data.session
+            ? "Account created! You can now log in."
+            : "Check your email to confirm your account, then log in.";
+        }
+      } catch (error) {
+        message.textContent = "Error: " + error.message;
+      } finally {
+        submitButton.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
