@@ -1,0 +1,254 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seller Dashboard | NanaObasty</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      color: #222;
+    }
+    header {
+      background: #f68b1e;
+      color: white;
+      padding: 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    main {
+      max-width: 850px;
+      margin: 25px auto;
+      padding: 15px;
+    }
+    .panel {
+      background: white;
+      padding: 22px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px #ddd;
+    }
+    input, textarea, button {
+      box-sizing: border-box;
+      width: 100%;
+      padding: 12px;
+      margin: 7px 0;
+      border-radius: 6px;
+      font-size: 15px;
+    }
+    input, textarea { border: 1px solid #ccc; }
+    textarea { min-height: 85px; }
+    button {
+      background: #f68b1e;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .logout { width: auto; background: #333; }
+    .product {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 12px;
+      margin: 12px 0;
+      overflow-wrap: anywhere;
+    }
+    .product img {
+      width: 100%;
+      max-width: 180px;
+      max-height: 160px;
+      object-fit: contain;
+    }
+    .delete { background: #c62828; }
+    #status { overflow-wrap: anywhere; }
+  </style>
+</head>
+<body>
+  <header>
+    <strong>NanaObasty Buy&Sell GH</strong>
+    <button class="logout" id="logoutButton">Log Out</button>
+  </header>
+
+  <main>
+    <section class="panel">
+      <h2>Seller Dashboard</h2>
+      <p id="account">Checking your login...</p>
+      <p id="status" role="status"></p>
+    </section>
+
+    <section class="panel" id="addPanel" hidden>
+      <h2>Add a Product</h2>
+      <form id="productForm">
+        <input id="name" placeholder="Product name" required>
+        <textarea id="description" placeholder="Product description"></textarea>
+        <input id="price" type="number" min="0.01" step="0.01"
+               placeholder="Price in GH₵" required>
+        <input id="imageUrl" type="url"
+               placeholder="Product image URL (optional)">
+        <button type="submit">Publish Product</button>
+      </form>
+    </section>
+
+    <section class="panel">
+      <h2>My Products</h2>
+      <div id="products">Loading products...</div>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const SUPABASE_URL =
+      "https://bdxhqsdqnqqevvlmpfah.supabase.co";
+    const SUPABASE_KEY =
+      "sb_publishable_RcrFMMSjl4L5D9-fpU0DUQ_H3rf36Ur";
+
+    const db = window.supabase.createClient(
+      SUPABASE_URL, SUPABASE_KEY
+    );
+
+    let currentUser = null;
+
+    const status = document.getElementById("status");
+    const productsBox = document.getElementById("products");
+    const addPanel = document.getElementById("addPanel");
+
+    async function startDashboard() {
+      const { data, error } = await db.auth.getSession();
+
+      if (error || !data.session) {
+        document.getElementById("account").textContent =
+          "Please log in first.";
+        productsBox.textContent = "Log in to manage your products.";
+        status.textContent = "Open seller.html and log in, then return here.";
+        return;
+      }
+
+      currentUser = data.session.user;
+      document.getElementById("account").textContent =
+        "Logged in as " + currentUser.email;
+      addPanel.hidden = false;
+      await loadProducts();
+    }
+
+    async function loadProducts() {
+      productsBox.textContent = "Loading products...";
+
+      const { data, error } = await db
+        .from("products")
+        .select("*")
+        .eq("seller_id", currentUser.id)
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        productsBox.textContent = "Could not load products: " + error.message;
+        return;
+      }
+
+      productsBox.replaceChildren();
+
+      if (!data.length) {
+        productsBox.textContent = "You have not added any products yet.";
+        return;
+      }
+
+      data.forEach(product => {
+        const card = document.createElement("article");
+        card.className = "product";
+
+        const title = document.createElement("h3");
+        title.textContent = product.name;
+        card.appendChild(title);
+
+        if (product.image_url) {
+          const img = document.createElement("img");
+          img.src = product.image_url;
+          img.alt = product.name;
+          img.loading = "lazy";
+          img.onerror = () => img.remove();
+          card.appendChild(img);
+        }
+
+        const price = document.createElement("p");
+        price.textContent = "Price: GH₵ " +
+          Number(product.price).toFixed(2);
+        card.appendChild(price);
+
+        const description = document.createElement("p");
+        description.textContent = product.description || "";
+        card.appendChild(description);
+
+        const removeButton = document.createElement("button");
+        removeButton.className = "delete";
+        removeButton.textContent = "Delete Product";
+        removeButton.addEventListener("click", async () => {
+          if (!confirm("Delete this product?")) return;
+
+          const { error } = await db.from("products")
+            .delete()
+            .eq("id", product.id)
+            .eq("seller_id", currentUser.id);
+
+          if (error) {
+            status.textContent = "Delete failed: " + error.message;
+          } else {
+            status.textContent = "Product deleted.";
+            await loadProducts();
+          }
+        });
+        card.appendChild(removeButton);
+
+        productsBox.appendChild(card);
+      });
+    }
+
+    document.getElementById("productForm")
+      .addEventListener("submit", async event => {
+        event.preventDefault();
+        if (!currentUser) return;
+
+        status.textContent = "Publishing product...";
+
+        const name = document.getElementById("name").value.trim();
+        const description =
+          document.getElementById("description").value.trim();
+        const price = Number(document.getElementById("price").value);
+        const imageUrl = document.getElementById("imageUrl").value.trim();
+
+        const { error } = await db.from("products").insert({
+          seller_id: currentUser.id,
+          name,
+          description,
+          price,
+          image_url: imageUrl
+        });
+
+        if (error) {
+          status.textContent = "Could not publish: " + error.message;
+          return;
+        }
+
+        status.textContent = "Product published successfully!";
+        event.target.reset();
+        await loadProducts();
+      });
+
+    document.getElementById("logoutButton")
+      .addEventListener("click", async () => {
+        const { error } = await db.auth.signOut();
+        if (error) {
+          status.textContent = "Logout failed: " + error.message;
+          return;
+        }
+        window.location.href = "seller.html";
+      });
+
+    startDashboard();
+  </script>
+</body>
+</html>
