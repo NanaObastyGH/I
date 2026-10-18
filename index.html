@@ -206,5 +206,17 @@ function checkout(){
 }
 renderProducts();renderCart();
 </script>
+ <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const SUPABASE_URL = "https://bdxhqsdqnqqevvlmpfah.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_RcrFMMSjl4L5D9-fpU0DUQ_H3rf36Ur";
+
+  const supabaseClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
+  console.log("NanaObasty Supabase connected");
+</script>
 </body>
 </html>
