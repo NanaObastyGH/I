@@ -122,8 +122,8 @@
             email, password
           });
           if (error) throw error;
-          message.textContent =
-            "Login successful! Seller account connected.";
+         message.textContent = "Login successful! Opening your dashboard...";
+window.location.href = "seller-dashboard.html";
         } else {
           const fullName =
             document.getElementById("fullName").value.trim();
