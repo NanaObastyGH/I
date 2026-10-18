@@ -232,5 +232,60 @@ renderProducts();renderCart();
 
   console.log("NanaObasty Supabase connected");
 </script>
+ 
+<script>
+async function loadSellerProducts() {
+  const { data, error } = await supabaseClient
+    .from("products")
+    .select("id, name, description, price, image_url")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Could not load products:", error.message);
+    return;
+  }
+
+  const container = document.getElementById("seller-products");
+
+  if (!container) {
+    console.error("Product display section not found.");
+    return;
+  }
+
+  container.innerHTML = "";
+
+  data.forEach(product => {
+    const card = document.createElement("div");
+    card.style.cssText =
+      "background:white;padding:12px;border-radius:8px;" +
+      "box-shadow:0 2px 6px #ddd;margin:8px;";
+
+    if (product.image_url) {
+      const img = document.createElement("img");
+      img.src = product.image_url;
+      img.alt = product.name;
+      img.style.cssText =
+        "width:100%;height:160px;object-fit:contain;";
+      card.appendChild(img);
+    }
+
+    const name = document.createElement("h3");
+    name.textContent = product.name;
+
+    const price = document.createElement("p");
+    price.textContent =
+      "GH₵ " + Number(product.price).toFixed(2);
+
+    const description = document.createElement("p");
+    description.textContent = product.description || "";
+
+    card.append(name, price, description);
+    container.appendChild(card);
+  });
+}
+
+loadSellerProducts();
+</script>
+
 </body>
 </html>
