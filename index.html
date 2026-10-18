@@ -290,7 +290,21 @@ async function loadSellerProducts() {
     const description = document.createElement("p");
     description.textContent = product.description || "";
 
-    card.append(name, price, description);
+   
+card.append(name, price, description);
+
+const contactButton = document.createElement("button");
+contactButton.textContent = "Contact Seller";
+contactButton.style.cssText =
+  "background:#f68b1e;color:white;padding:10px;" +
+  "border:0;border-radius:5px;cursor:pointer;";
+
+contactButton.onclick = function() {
+  alert("Please contact the seller for this product.");
+};
+
+card.appendChild(contactButton);
+
     container.appendChild(card);
   });
 }
