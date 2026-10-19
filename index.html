@@ -299,9 +299,34 @@ contactButton.style.cssText =
   "background:#f68b1e;color:white;padding:10px;" +
   "border:0;border-radius:5px;cursor:pointer;";
 
-contactButton.onclick = function() {
-  alert("WhatsApp contact will be connected next.");
+contactButton.onclick = async function() {
+  const { data: seller, error } = await supabaseClient
+    .from("sellers")
+    .select("phone")
+    .eq("id", product.seller_id)
+    .single();
+
+  if (error || !seller || !seller.phone) {
+    alert("Seller contact is not available yet.");
+    return;
+  }
+
+  let phone = seller.phone.replace(/\D/g, "");
+
+  if (phone.startsWith("0")) {
+    phone = "233" + phone.slice(1);
+  }
+
+  const message = encodeURIComponent(
+    "Hello, I am interested in your product: " + product.name
+  );
+
+  window.open(
+    "https://wa.me/" + phone + "?text=" + message,
+    "_blank"
+  );
 };
+
    
 card.appendChild(contactButton);
 
