@@ -247,9 +247,9 @@ renderProducts();renderCart();
 <script>
 async function loadSellerProducts() {
   const { data, error } = await supabaseClient
-    .from("products")
-    .select("id, name, description, price, image_url")
-    .order("created_at", { ascending: false });
+  .from("products")
+  .select("id, name, description, price, image_url, seller_id")
+  .order("created_at", { ascending: false });
 
   if (error) {
     console.error("Could not load products:", error.message);
