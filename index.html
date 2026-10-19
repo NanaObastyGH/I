@@ -58,8 +58,8 @@ footer p{font-size:13px;color:#ddd}
 .hidden{display:none!important}
 @media(max-width:900px){.products{grid-template-columns:repeat(3,minmax(0,1fr))}.hero-main h2{font-size:24px}}
 @media(max-width:600px){
- .topline{padding:8px 4%}.headerrow{gap:12px}.brand{font-size:20px}
- .headerbutton{padding:5px}.search{order:3;flex-basis:100%;max-width:none}
+ .topline{padding:8px 4%}.row{gap:12px}.brand{font-size:20px}
+ .button{padding:5px}.search{order:3;flex-basis:100%;max-width:none}
  nav{gap:18px;padding:13px 4%}
  .container{padding:0 9px;margin-top:10px}
  .hero{grid-template-columns:1fr;gap:10px}
@@ -80,7 +80,7 @@ body {
   margin: 0;
 }
 
-header {
+ {
   background: #f68b1e;
   color: white;
   padding: 18px;
@@ -166,6 +166,36 @@ button:hover {
 
 </header>
  
+<nav class="shop-categories">
+  <a href="#seller-products">All Products</a>
+  <a href="#seller-products">Phones & Electronics</a>
+  <a href="#seller-products">Fashion</a>
+  <a href="#seller-products">Home & Living</a>
+  <a href="#seller-products">Beauty</a>
+  <a href="seller.html">Sell on NanaObasty</a>
+</nav>
+
+<style>
+.shop-categories {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  padding: 15px;
+  background: white;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+}
+.shop-categories a {
+  color: #333;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 14px;
+}
+.shop-categories a:hover {
+  color: #f68b1e;
+}
+</style>
+
 <section style="padding:20px;">
   <h2 style="color:#f68b1e;">Products from Our Sellers</h2>
   <div id="seller-products" style="
