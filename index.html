@@ -60,7 +60,7 @@ footer p{font-size:13px;color:#ddd}
 @media(max-width:600px){
  .topline{padding:8px 4%}.row{gap:12px}.brand{font-size:20px}
  .button{padding:5px}.search{order:3;flex-basis:100%;max-width:none}
- nav{gap:18px;padding:13px 4%}
+ {gap:18px;padding:13px 4%}
  .container{padding:0 9px;margin-top:10px}
  .hero{grid-template-columns:1fr;gap:10px}
  .hero-main{min-height:180px;padding:22px}.hero-main h2{font-size:25px}
@@ -166,7 +166,7 @@ button:hover {
 
 </header>
  
-<nav class="shop-categories">
+< class="shop-categories">
   <a href="#seller-products">All Products</a>
   <a href="#seller-products">Phones & Electronics</a>
   <a href="#seller-products">Fashion</a>
@@ -174,6 +174,64 @@ button:hover {
   <a href="#seller-products">Beauty</a>
   <a href="seller.html">Sell on NanaObasty</a>
 </nav>
+ 
+<section class="nana-banner">
+  <div>
+    <p class="banner-tag">WELCOME TO NANAOBASTY</p>
+    <h2>Everything You Need,<br>All in One Place!</h2>
+    <p>Discover great deals from sellers across Ghana.</p>
+    <a href="#seller-products">SHOP NOW →</a>
+  </div>
+  <div class="banner-icon">🛍️</div>
+</section>
+
+<style>
+.nana-banner {
+  margin: 20px;
+  padding: 30px;
+  border-radius: 12px;
+  background: linear-gradient(120deg, #f68b1e, #ffbd59);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+}
+.nana-banner h2 {
+  font-size: 30px;
+  margin: 10px 0;
+}
+.banner-tag {
+  font-weight: bold;
+  letter-spacing: 2px;
+}
+.nana-banner a {
+  display: inline-block;
+  background: white;
+  color: #e87500;
+  padding: 12px 20px;
+  margin-top: 10px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: bold;
+}
+.banner-icon {
+  font-size: 85px;
+}
+@media (max-width: 600px) {
+  .nana-banner {
+    margin: 10px;
+    padding: 20px;
+  }
+  .nana-banner h2 {
+    font-size: 23px;
+  }
+  .banner-icon {
+    font-size: 45px;
+  }
+}
+</style>
+
 
 <style>
 .shop-categories {
